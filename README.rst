@@ -3,6 +3,7 @@ django-simple-events
 ====================
 
 Add new events for auth.users::
+
     In [5]: user = User.objects.create_user('newbie', 'newbie@example.com', '$ecret')
 
     In [6]: Event.objects.add('subscription', user)

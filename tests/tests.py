@@ -2,19 +2,23 @@ from datetime import datetime
 
 from django import test
 from django.contrib.contenttypes.models import ContentType
+from django.test.utils import override_settings
 
 from .models import Poll
 
-from simple_events.bridge import backend as events
+from simple_events.utils import load_class
 
 
-class EventTest(test.TestCase):
+class DatabaseEventTest(test.TestCase):
+    def setUp(self):
+        self.backend = load_class('simple_events.backends.database.DatabaseBackend')()
+
     def test_create_basic_event(self):
         poll = Poll.objects.create(question='WHAT?', pub_date=datetime.now())
 
         self.assertEqual(poll.question, 'WHAT?')
 
-        event = events.add('first_support', poll)
+        event = self.backend.add('first_support', poll)
 
         self.assertEqual(event.content_object, poll)
         self.assertEqual(event.object_id, poll.pk)
@@ -25,22 +29,22 @@ class EventTest(test.TestCase):
         self.assertEqual(event.date is None, False)
 
         current_date = datetime.now()
-        event = events.add('last_support', poll, date=current_date)
+        event = self.backend.add('last_support', poll, date=current_date)
 
         self.assertEqual(event.date, current_date)
 
     def test_list_event(self):
         poll = Poll.objects.create(question='WHAT?', pub_date=datetime.now())
 
-        event = events.add('first_support', poll)
+        event = self.backend.add('first_support', poll)
 
-        self.assertEqual(events.retrieve('first_support', poll), event)
+        self.assertEqual(self.backend.retrieve('first_support', poll), event)
 
-        event_list = events.list(poll)
+        event_list = self.backend.list(poll)
 
         self.assertEqual(list(event_list), [event])
 
-        event_list = events.list('first_support')
+        event_list = self.backend.list('first_support')
 
         self.assertEqual(list(event_list), [event])
 
@@ -58,38 +62,45 @@ class EventTest(test.TestCase):
         for question, name in questions:
             poll = Poll.objects.create(question=question, pub_date=datetime.now())
             polls.append(poll)
-            event_list.append(events.add(name, poll))
+            event_list.append(self.backend.add(name, poll))
 
-        self.assertEqual(list(events.list('last_fan')), [event_list[2], event_list[3], event_list[4]])
+        self.assertEqual(list(self.backend.list('last_fan')), [event_list[2], event_list[3], event_list[4]])
 
-        self.assertEqual(list(events.list(polls[2])), [event_list[2]])
+        self.assertEqual(list(self.backend.list(polls[2])), [event_list[2]])
 
-        self.assertEqual(list(events.list(Poll)), [event] + event_list)
+        self.assertEqual(list(self.backend.list(Poll)), [event] + event_list)
 
-        self.assertEqual(list(events.list(5457445)), [])
+        self.assertEqual(list(self.backend.list(5457445)), [])
 
     def test_remove_event(self):
         poll = Poll.objects.create(question='WHAT?', pub_date=datetime.now())
         self.assertEqual(poll.question, 'WHAT?')
 
-        events.add('first_support', poll)
+        self.backend.add('first_support', poll)
 
-        events.remove('first_support')
+        self.backend.remove('first_support')
 
-        list_obj = events.list('first_support')
+        list_obj = self.backend.list('first_support')
 
         self.assertEqual(list(list_obj), [])
 
         poll4 = Poll.objects.create(question='WHERE?', pub_date=datetime.now())
         poll5 = Poll.objects.create(question='DONDE?', pub_date=datetime.now())
-        event4 = events.add('last_fan', poll4)
-        event5 = events.add('last_fan', poll5)
+        event4 = self.backend.add('last_fan', poll4)
+        event5 = self.backend.add('last_fan', poll5)
 
-        list_obj = events.list('last_fan')
+        list_obj = self.backend.list('last_fan')
 
         self.assertEqual(list(list_obj), [event4, event5])
 
-        events.remove('last_fan')
+        self.backend.remove('last_fan')
 
-        list_obj_2 = events.list('last_fan')
+        list_obj_2 = self.backend.list('last_fan')
         self.assertEqual(list(list_obj_2), [])
+
+
+@override_settings(INSTALLED_APPS=[],
+                   SIMPLE_EVENTS_BACKEND='simple_self.backend.backends.redis.RedisBackend')
+class RedisEventTest(DatabaseEventTest):
+    def setUp(self):
+        self.backend = load_class('simple_events.backends.redis.RedisBackend')()

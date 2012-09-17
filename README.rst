@@ -4,33 +4,34 @@ django-simple-events
 
 Add new events for auth.users::
 
+    In [4]: from simple_events.bridge import backend as events
     In [5]: user = User.objects.create_user('newbie', 'newbie@example.com', '$ecret')
 
-    In [6]: simple_events.backend.add('subscription', user)
+    In [6]: events.add('subscription', user)
     Out[6]: <Event: subscription for newbie>
 
-    In [7]: simple_events.backend.add('subscription', user, date=user.date_joined)
+    In [7]: events.add('subscription', user, date=user.date_joined)
     Out[7]: <Event: subscription for newbie>
 
 List all events for auth.users::
 
-    In [12]: simple_events.backend.list(user)
+    In [12]: events.list(user)
     Out[12]: [<Event: subscription for newbie>, <Event: subscription for newbie>]
 
-    In [13]: simple_events.backend.add('last_login', user, date=user.last_login)
+    In [13]: events.add('last_login', user, date=user.last_login)
     Out[13]: <Event: last_login for newbie>
 
-    In [14]: simple_events.backend.list('last_login')
+    In [14]: events.list('last_login')
     Out[14]: [<Event: last_login for newbie>]
 
 Retrieve only one event for a specific event name and auth.users::
 
-    In [16]: simple_events.backend.retrieve('last_login', user)
+    In [16]: events.retrieve('last_login', user)
     Out[16]: <Event: last_login for newbie>
 
 Remove all events with a specific event name::
 
-    In [17]: simple_events.backend.remove('last_login')
+    In [17]: events.remove('last_login')
 
 Installation
 ------------

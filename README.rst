@@ -6,31 +6,31 @@ Add new events for auth.users::
 
     In [5]: user = User.objects.create_user('newbie', 'newbie@example.com', '$ecret')
 
-    In [6]: Event.objects.add('subscription', user)
+    In [6]: simple_events.backend.add('subscription', user)
     Out[6]: <Event: subscription for newbie>
 
-    In [7]: Event.objects.add('subscription', user, date=user.date_joined)
+    In [7]: simple_events.backend.add('subscription', user, date=user.date_joined)
     Out[7]: <Event: subscription for newbie>
 
 List all events for auth.users::
 
-    In [12]: Event.objects.list(user)
+    In [12]: simple_events.backend.list(user)
     Out[12]: [<Event: subscription for newbie>, <Event: subscription for newbie>]
 
-    In [13]: Event.objects.add('last_login', user, date=user.last_login)
+    In [13]: simple_events.backend.add('last_login', user, date=user.last_login)
     Out[13]: <Event: last_login for newbie>
 
-    In [14]: Event.objects.list('last_login')
+    In [14]: simple_events.backend.list('last_login')
     Out[14]: [<Event: last_login for newbie>]
 
 Retrieve only one event for a specific event name and auth.users::
 
-    In [16]: Event.objects.retrieve('last_login', user)
+    In [16]: simple_events.backend.retrieve('last_login', user)
     Out[16]: <Event: last_login for newbie>
 
 Remove all events with a specific event name::
 
-    In [17]: Event.objects.remove('last_login')
+    In [17]: simple_events.backend.remove('last_login')
 
 Installation
 ------------
@@ -41,7 +41,8 @@ OR
 
 put the ``simple_events`` folder on your python-path
 
-Add ``simple_events`` to your `INSTALLED_APPS`.
+Add ``simple_events.backends.database`` to your `INSTALLED_APPS` if you want to
+use the RDMS backend connector with the Django ORM.
 
 Roadmap
 -------
@@ -49,5 +50,10 @@ Roadmap
 Currently only databases shipped with the default Django ORM is supported and
 the API is very simple.
 
-Custom backends could be done to store results in databases like: ``redis`` or
+Custom backends could be done to store results in NoSQL databases like: ``redis`` or
 ``MongoDB``.
+
+Notes
+-----
+
+`simple_events` uses a `load_class` helper in its `utils` module which can be found at `django-shop <https://github.com/divio/django-shop/blob/master/shop/util/loader.py>`_.

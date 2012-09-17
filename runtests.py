@@ -10,10 +10,19 @@ from django.conf import settings
 
 if not settings.configured:
     settings.configure(
-        DATABASE_ENGINE='sqlite3',
+        DATABASES={
+            'default': {
+                'ENGINE': 'django.db.backends.sqlite3',
+                'NAME': '',
+                'USER': '',
+                'PASSWORD': '',
+                'HOST': '',
+                'PORT': '',
+            }
+        },
         INSTALLED_APPS=[
             'django.contrib.contenttypes',
-            'simple_events',
+            'simple_events.backends.database',
         ]
     )
 

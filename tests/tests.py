@@ -21,6 +21,7 @@ class DatabaseEventTest(test.TestCase):
         event = self.backend.add('first_support', poll)
 
         self.assertEqual(event.content_object, poll)
+
         self.assertEqual(event.object_id, poll.pk)
 
         self.assertEqual(event.content_type, ContentType.objects.get_for_model(poll))
@@ -104,3 +105,5 @@ class DatabaseEventTest(test.TestCase):
 class RedisEventTest(DatabaseEventTest):
     def setUp(self):
         self.backend = load_class('simple_events.backends.redis.RedisBackend')()
+        import redisco
+        redisco.connection.flushdb()

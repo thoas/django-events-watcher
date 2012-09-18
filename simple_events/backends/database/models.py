@@ -4,8 +4,10 @@ from django.contrib.contenttypes.models import ContentType
 
 from .managers import EventManager
 
+from ..mixins import EventMixin
 
-class Event(models.Model):
+
+class Event(models.Model, EventMixin):
     object_id = models.PositiveIntegerField()
     content_object = generic.GenericForeignKey('content_type', 'object_id')
 
@@ -14,6 +16,3 @@ class Event(models.Model):
     content_type = models.ForeignKey(ContentType)
 
     objects = EventManager()
-
-    def __unicode__(self):
-        return u'%s for %s' % (self.name, self.content_object)

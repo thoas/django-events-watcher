@@ -25,4 +25,7 @@ class DatabaseBackend(Backend):
         return self.model.objects.remove(instance)
 
     def retrieve(self, name, instance):
-        return self.model.objects.retrieve(name, instance)
+        try:
+            return self.model.objects.retrieve(name, instance)
+        except self.model.DoesNotExist:
+            return False

@@ -1,16 +1,23 @@
 import inspect
 from datetime import datetime
 
-from django.db import models as django_models
+from django.db.models import Model
 
 from simple_events.utils import load_class
 from simple_events import settings
 from ..base import Backend
 
+import redisco
+
 
 class RedisBackend(Backend):
+    filters = [
+        (lambda instance: isinstance(instance, str), 'list_from_string'),
+        (lambda instance: isinstance(instance, Model), 'list_from_instance'),
+        (lambda instance: inspect.isclass(instance) and issubclass(instance, Model), 'list_from_class'),
+    ]
+
     def __init__(self):
-        import redisco
         redisco.connection_setup(**settings.REDIS_CONNECTION)
 
         self.model = load_class(settings.REDIS_CONNECTION_CLASS)
@@ -27,17 +34,15 @@ class RedisBackend(Backend):
 
         return event
 
-    def list(self, instance):
-        from redisco.containers import Set
+    def list_from_string(self, string):
+        return self.model.objects.filter(name=string)
 
-        if isinstance(instance, str):
-            return self.model.objects.filter(name=instance)
-        elif isinstance(instance, django_models.Model):
-            return self.model.objects.filter(reference=self.make_key_from_instance(instance), object_id=instance.id)
-        elif inspect.isclass(instance) and issubclass(instance, django_models.Model):
-            return self.model.objects.filter(reference=self.make_key_from_class(instance))
+    def list_from_instance(self, instance):
+        return self.model.objects.filter(reference=self.make_key_from_instance(instance),
+                                         object_id=instance.id)
 
-        return Set(key=instance)
+    def list_from_class(self, klass):
+        return self.model.objects.filter(reference=self.make_key_from_class(klass))
 
     def remove(self, instance):
         for event in self.list(instance):

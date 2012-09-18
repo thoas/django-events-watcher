@@ -1,9 +1,6 @@
 from django.conf import settings
 
 
-REDIS_PREFIX = getattr(settings, 'SIMPLE_EVENTS_REDIS_PREFIX',
-                       getattr(settings, 'SIMPLE_EVENTS_PREFIX', 'simple_events:'))
-
 BACKEND = getattr(settings,
                   'SIMPLE_EVENTS_BACKEND',
                   'simple_events.backends.database.DatabaseBackend')

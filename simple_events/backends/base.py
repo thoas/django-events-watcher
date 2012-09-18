@@ -1,5 +1,13 @@
+from collections import defaultdict
+from django.db.models.signals import post_save, pre_save
+
+
 class Backend(object):
     filters = []
+
+    def __init__(self):
+        self._callbacks = defaultdict(list)
+        self._initial_data = {}
 
     def add(self, key, instance, date=None):
         """
@@ -49,3 +57,38 @@ class Backend(object):
         """
         return u'%s:%s' % (self.make_key_from_instance(instance),
                            instance.pk)
+
+    def watch(self, klass, key, condition, callback=None):
+        pre_save.connect(self._on_pre_save, sender=klass)
+        post_save.connect(self._on_post_save, sender=klass)
+
+        self._callbacks[klass].append((key, condition, callback))
+
+    def _on_post_save(self, sender, instance, **kwargs):
+        klass = instance.__class__
+        identifier = self._make_identifier(instance)
+
+        if klass in self._callbacks and (identifier in self._initial_data[klass] or kwargs.get('created')):
+            initial_data = self._initial_data[klass].get(identifier, {})
+
+            for key, condition, callback in self._callbacks[klass]:
+                if condition(initial_data, instance):
+                    event = self.add(key, instance)
+
+                    if callback:
+                        callback(initial_data, instance, event)
+
+    def _on_pre_save(self, sender, instance, **kwargs):
+        klass = instance.__class__
+
+        if klass in self._callbacks:
+            if not klass in self._initial_data:
+                self._initial_data[klass] = {}
+
+            if instance.pk:
+                previous_instance = klass.objects.get(pk=instance.pk)
+
+                self._initial_data[klass][self._make_identifier(instance)] = dict(previous_instance.__dict__)
+
+    def _make_identifier(self, instance):
+        return self.make_key_id_from_instance(instance) if instance.pk else id(instance)

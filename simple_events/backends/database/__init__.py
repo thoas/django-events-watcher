@@ -20,6 +20,8 @@ class DatabaseBackend(Backend):
     ]
 
     def __init__(self):
+        super(DatabaseBackend, self).__init__()
+
         self.model = load_class(settings.DATABASE_CONNECTION_CLASS)
 
         if not self.model._meta.installed:

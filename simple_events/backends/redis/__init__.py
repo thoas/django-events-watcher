@@ -18,6 +18,8 @@ class RedisBackend(Backend):
     ]
 
     def __init__(self):
+        super(RedisBackend, self).__init__()
+
         redisco.connection_setup(**settings.REDIS_CONNECTION)
 
         self.model = load_class(settings.REDIS_CONNECTION_CLASS)

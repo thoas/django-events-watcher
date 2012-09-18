@@ -4,7 +4,7 @@ from django import test
 from django.contrib.contenttypes.models import ContentType
 from django.test.utils import override_settings
 
-from .models import Poll
+from .models import Poll, Choice
 
 from simple_events.utils import load_class
 
@@ -98,6 +98,25 @@ class DatabaseEventTest(test.TestCase):
 
         list_obj_2 = self.backend.list('last_fan')
         self.assertEqual(list(list_obj_2), [])
+
+    def test_watch(self):
+        poll = Poll.objects.create(question='Y U NO WORK?', pub_date=datetime.now())
+
+        choice = Choice.objects.create(poll=poll, choice='YES', votes=0)
+
+        self.backend.watch(Choice, 'votes_higher_than_zero', lambda initial_data, instance: initial_data['votes'] <= 0 and instance.votes > 0)
+
+        choice.votes = 1
+        choice.save()
+
+        events = self.backend.list('votes_higher_than_zero')
+
+        self.assertEqual(len(events), 1)
+
+        event = events[0]
+
+        self.assertEqual(event.name, 'votes_higher_than_zero')
+        self.assertEqual(event.content_object, choice)
 
 
 @override_settings(INSTALLED_APPS=[],

@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
 from setuptools import setup, find_packages
 
-version = __import__('simple_events').__version__
+version = __import__('events_watcher').__version__
 
 setup(
-    name='django-simple-events',
+    name='django-events-watcher',
     version=version,
-    description='Simple events is an event packaging library for Django.',
+    description='Events watcher is an event packaging library for Django to track changes made in your models.',
     author='Florent Messa',
     author_email='florent.messa@gmail.com',
-    url='http://github.com/thoas/django-simple-events',
+    url='http://github.com/thoas/django-events-watcher',
     packages=find_packages(),
     zip_safe=False,
     include_package_data=True,

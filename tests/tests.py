@@ -12,6 +12,7 @@ from simple_events.utils import load_class
 class DatabaseEventTest(test.TestCase):
     def setUp(self):
         self.backend = load_class('simple_events.backends.database.DatabaseBackend')()
+        self.backend.purge()
 
     def test_create_basic_event(self):
         poll = Poll.objects.create(question='WHAT?', pub_date=datetime.now())
@@ -104,7 +105,9 @@ class DatabaseEventTest(test.TestCase):
 
         choice = Choice.objects.create(poll=poll, choice='YES', votes=0)
 
-        self.backend.watch(Choice, 'votes_higher_than_zero', lambda initial_data, instance: initial_data['votes'] <= 0 and instance.votes > 0)
+        self.backend.watch(Choice,
+                           'votes_higher_than_zero',
+                           lambda initial_data, instance, created: created or initial_data['votes'] <= 0 and instance.votes > 0)
 
         choice.votes = 1
         choice.save()
@@ -118,6 +121,37 @@ class DatabaseEventTest(test.TestCase):
         self.assertEqual(event.name, 'votes_higher_than_zero')
         self.assertEqual(event.content_object, choice)
 
+        choice.save()
+
+        events = self.backend.list('votes_higher_than_zero')
+
+        self.assertEqual(len(events), 1)
+
+        choice = Choice.objects.create(poll=poll, choice='YES', votes=1)
+
+        events = self.backend.list('votes_higher_than_zero')
+
+        self.assertEqual(len(events), 2)
+
+    def test_watch_with_callback(self):
+        self.initial = False
+
+        def callback(event, **kwargs):
+            self.initial = True
+
+        self.backend.watch(Choice,
+                           'votes_higher_than_zero',
+                           lambda initial_data, instance, created: created or initial_data['votes'] <= 0 and instance.votes > 0,
+                           callback=callback)
+
+        poll = Poll.objects.create(question='Y U NO WORK?', pub_date=datetime.now())
+
+        choice = Choice.objects.create(poll=poll, choice='YES', votes=0)
+        choice.votes = 1
+        choice.save()
+
+        self.assertTrue(self.initial)
+
 
 @override_settings(INSTALLED_APPS=[],
                    SIMPLE_EVENTS_BACKEND='simple_self.backend.backends.redis.RedisBackend')
@@ -126,3 +160,5 @@ class RedisEventTest(DatabaseEventTest):
         self.backend = load_class('simple_events.backends.redis.RedisBackend')()
         import redisco
         redisco.connection.flushdb()
+
+        self.backend.purge()

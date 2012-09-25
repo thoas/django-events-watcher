@@ -6,12 +6,12 @@ from django.test.utils import override_settings
 
 from .models import Poll, Choice
 
-from simple_events.utils import load_class
+from events_watcher.utils import load_class
 
 
 class DatabaseEventTest(test.TestCase):
     def setUp(self):
-        self.backend = load_class('simple_events.backends.database.DatabaseBackend')()
+        self.backend = load_class('events_watcher.backends.database.DatabaseBackend')()
         self.backend.purge()
 
     def test_create_basic_event(self):
@@ -154,10 +154,10 @@ class DatabaseEventTest(test.TestCase):
 
 
 @override_settings(INSTALLED_APPS=[],
-                   SIMPLE_EVENTS_BACKEND='simple_self.backend.backends.redis.RedisBackend')
+                   events_watcher_BACKEND='events_watcher.backend.backends.redis.RedisBackend')
 class RedisEventTest(DatabaseEventTest):
     def setUp(self):
-        self.backend = load_class('simple_events.backends.redis.RedisBackend')()
+        self.backend = load_class('events_watcher.backends.redis.RedisBackend')()
         import redisco
         redisco.connection.flushdb()
 

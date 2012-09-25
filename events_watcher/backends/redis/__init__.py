@@ -3,8 +3,8 @@ from datetime import datetime
 
 from django.db.models import Model
 
-from simple_events.utils import load_class
-from simple_events import settings
+from events_watcher.utils import load_class
+from events_watcher import settings
 from ..base import Backend
 
 import redisco

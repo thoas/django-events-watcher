@@ -22,7 +22,7 @@ if not settings.configured:
         },
         INSTALLED_APPS=[
             'django.contrib.contenttypes',
-            'simple_events.backends.database',
+            'events_watcher.backends.database',
         ]
     )
 

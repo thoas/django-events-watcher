@@ -6,8 +6,8 @@ from django.db.models import Model
 
 from ..base import Backend
 
-from simple_events import settings
-from simple_events.utils import load_class
+from events_watcher import settings
+from events_watcher.utils import load_class
 
 from datetime import datetime
 
@@ -26,7 +26,7 @@ class DatabaseBackend(Backend):
 
         if not self.model._meta.installed:
             raise ImproperlyConfigured(
-                "The simple_events.backends.database app isn't installed "
+                "The events_watcher.backends.database app isn't installed "
                 "correctly. Make sure it's in your INSTALLED_APPS settings.")
 
     def add(self, name, instance, date=None):

@@ -1,10 +1,10 @@
-====================
-django-simple-events
-====================
+=====================
+django-events-watcher
+=====================
 
 Add new events for auth.users::
 
-    In [4]: from simple_events.bridge import backend as events
+    In [4]: from events_watcher.bridge import backend as events
     In [5]: user = User.objects.create_user('newbie', 'newbie@example.com', '$ecret')
 
     In [6]: events.add('subscription', user)
@@ -40,9 +40,9 @@ Installation
 
 OR
 
-put the ``simple_events`` folder on your python-path
+put the ``events_watcher`` folder on your python-path
 
-Add ``simple_events.backends.database`` to your `INSTALLED_APPS` if you want to
+Add ``events_watcher.backends.database`` to your `INSTALLED_APPS` if you want to
 use the RDMS backend connector with the Django ORM.
 
 Roadmap
@@ -57,4 +57,4 @@ Custom backends could be done to store results in NoSQL databases like: ``redis`
 Notes
 -----
 
-`simple_events` uses a `load_class` helper in its `utils` module which can be found at `django-shop <https://github.com/divio/django-shop/blob/master/shop/util/loader.py>`_.
+``events_watcher`` uses a ``load_class`` helper in its ``utils`` module which can be found at `django-shop <https://github.com/divio/django-shop/blob/master/shop/util/loader.py>`_.

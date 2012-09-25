@@ -3,7 +3,7 @@ from django.core import exceptions
 from django.utils.importlib import import_module
 
 
-CLASS_PATH_ERROR = 'django-simple-events is unable to interpret settings value for %s. '\
+CLASS_PATH_ERROR = 'django-events-watcher is unable to interpret settings value for %s. '\
                    '%s should be in the form of a tupple: '\
                    '(\'path.to.models.Class\', \'app_label\').'
 

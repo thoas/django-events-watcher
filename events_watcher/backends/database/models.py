@@ -12,3 +12,6 @@ class Event(models.Model, EventMixin):
     name = models.CharField(max_length=150)
     date = models.DateTimeField(blank=True, null=True)
     content_type = models.ForeignKey(ContentType)
+
+    class Meta:
+        db_table = 'simple_events_event'

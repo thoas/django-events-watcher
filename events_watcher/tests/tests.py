@@ -2,7 +2,6 @@ from datetime import datetime
 
 from django import test
 from django.contrib.contenttypes.models import ContentType
-from django.test.utils import override_settings
 
 from .models import Poll, Choice
 
@@ -151,14 +150,3 @@ class DatabaseEventTest(test.TestCase):
         choice.save()
 
         self.assertTrue(self.initial)
-
-
-@override_settings(INSTALLED_APPS=[],
-                   events_watcher_BACKEND='events_watcher.backend.backends.redis.RedisBackend')
-class RedisEventTest(DatabaseEventTest):
-    def setUp(self):
-        self.backend = load_class('events_watcher.backends.redis.RedisBackend')()
-        import redisco
-        redisco.connection.flushdb()
-
-        self.backend.purge()

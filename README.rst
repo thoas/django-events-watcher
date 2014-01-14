@@ -2,6 +2,10 @@
 django-events-watcher
 =====================
 
+.. image:: https://secure.travis-ci.org/thoas/django-events-watcher.png?branch=master
+    :alt: Build Status
+    :target: http://travis-ci.org/thoas/django-events-watcher
+
 Add new events for auth.users::
 
     In [4]: from events_watcher.bridge import backend as events

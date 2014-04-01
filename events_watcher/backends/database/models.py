@@ -15,6 +15,7 @@ class Event(models.Model):
 
     class Meta:
         db_table = 'simple_events_event'
+        unique_together = ('object_id', 'name', 'content_type')
 
     def __str__(self):
         return u'%s for %s' % (self.name, self.content_object)

@@ -3,6 +3,7 @@ import inspect
 from django.core.exceptions import ImproperlyConfigured
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Model
+from django.db import IntegrityError, transaction
 
 from ..base import Backend
 
@@ -35,10 +36,14 @@ class DatabaseBackend(Backend):
 
         content_type = ContentType.objects.get_for_model(instance)
 
-        event = self.model.objects.create(object_id=instance.pk,
-                                          name=name,
-                                          date=date,
-                                          content_type=content_type)
+        try:
+            with getattr(transaction, 'atomic', getattr(transaction, 'commit_on_success'))():
+                event = self.model.objects.create(object_id=instance.pk,
+                                                  name=name,
+                                                  date=date,
+                                                  content_type=content_type)
+        except IntegrityError:
+            event = self.retrieve(name, instance)
 
         return event
 

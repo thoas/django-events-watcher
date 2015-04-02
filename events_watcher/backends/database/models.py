@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 from django.db import models
 
 try:
@@ -23,4 +25,4 @@ class Event(models.Model):
         unique_together = ('object_id', 'name', 'content_type')
 
     def __str__(self):
-        return u'%s for %s' % (self.name, self.content_object)
+        return '%s for %s' % (self.name, self.content_object)

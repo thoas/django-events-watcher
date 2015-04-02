@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 from collections import defaultdict
 
 from django.db.models.signals import post_save, pre_save
@@ -59,8 +61,8 @@ class Backend(object):
         """
         Make a formatted key with an id from an instance
         """
-        return u'%s:%s' % (self.make_key_from_instance(instance),
-                           instance.pk)
+        return '%s:%s' % (self.make_key_from_instance(instance),
+                          instance.pk)
 
     def watch(self, klass, key, condition, callback=None):
         pre_save.connect(self._on_pre_save, sender=klass)
@@ -91,7 +93,7 @@ class Backend(object):
         klass = instance.__class__
 
         if klass in self._callbacks:
-            if not klass in self._initial_data:
+            if klass not in self._initial_data:
                 self._initial_data[klass] = {}
 
             if instance.pk:

@@ -47,15 +47,15 @@ class Backend(object):
         """
         Make a formatted key from a class
         """
-        return u'%s.%s' % (klass._meta.app_label,
-                           klass.__name__)
+        return '%s.%s' % (klass._meta.app_label,
+                          klass.__name__)
 
     def make_key_from_instance(self, instance):
         """
         Make a formatted key from an instance
         """
-        return u'%s.%s' % (instance._meta.app_label,
-                           instance.__class__.__name__)
+        return '%s.%s' % (instance._meta.app_label,
+                          instance.__class__.__name__)
 
     def make_key_id_from_instance(self, instance):
         """

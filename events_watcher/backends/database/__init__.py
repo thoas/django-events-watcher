@@ -37,7 +37,7 @@ class DatabaseBackend(Backend):
         content_type = ContentType.objects.get_for_model(instance)
 
         try:
-            with getattr(transaction, 'atomic', getattr(transaction, 'commit_on_success'))():
+            with getattr(transaction, 'atomic', getattr(transaction, 'commit_on_success', None))():
                 event = self.model.objects.create(object_id=instance.pk,
                                                   name=name,
                                                   date=date,
